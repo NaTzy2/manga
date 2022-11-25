@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Manga Web</title>
+
+    <link rel="stylesheet" href="assets/css/bootstrap.css">
+    <style>
+        *{
+            font-family: Arial, Helvetica, sans-serif;
+        }
+        body{
+            background-color: slateblue;
+        }
+        #mangaWrap{
+            display: grid;
+            grid-template-columns: repeat(3, minmax(10px, 1fr));
+        }
+        .card{
+            margin-left: 50px;
+            margin-bottom: 20px;
+            width: 200px;
+            font-size: 16px;
+            background-color: darkslateblue;
+            color: yellow;
+        }
+        .card img{
+            cursor: pointer;
+        }
+    </style>
+</head>
+<body>
+    <div id="mangaWrap">
+        
+    </div>
+</body>
+</html>
+
+<script>
+getData("https://api.mangadex.org/manga?offset=1&limit=6&includes[]=cover_art");
+
+let mangaData
+
+async function getData(file) {
+    await fetch(file).then((response) => {       
+        return response.json();
+    }).then((data) => {
+        mangaData = data.data;
+    })
+
+    let mangaWrap = document.getElementById('mangaWrap')
+    
+    let myManga = ''
+    
+    for(var i = 0; i < mangaData.length; i++){  
+        for(var j = 0; j < mangaData[i].relationships.length; j++){
+            let title = mangaData[i].attributes.title.en
+            let desc = mangaData[i].attributes.description.en
+            
+            if(mangaData[i].relationships[j].type == 'cover_art'){
+                let myCover = "https://uploads.mangadex.org/covers/" + mangaData[i].id +
+                "/" + mangaData[i].relationships[j].attributes.fileName
+
+                myManga +=
+                    "<div class='card'>" + 
+                        "<h5 class='title'>" + title + "</h5>" + 
+                        "<img src='" + myCover + "' title ='" + title + "'>" + 
+                        "<p class='text'>" + desc +"</p>" +
+                    "</div>"
+            }
+        }
+    }
+    
+    mangaWrap.innerHTML = myManga
+}
+</script>
